@@ -2,50 +2,9 @@ param($rootPath, $toolsPath, $package, $project)
 
 "Installing PackageRestore to project [{0}]" -f $project.FullName | Write-Host
 
-#Only for debugging
-if(!$project){
-    $project = (Get-Item C:\Temp\_NET\SlowCheetahMSBuild\SampleProject\SampleProject.csproj)
-
-    [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Build")
-    [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Build.Engine")
-    [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Build.Framework")
-}
-
 $importLabel = "PackageRestore"
 # This is the label of the <SolutionDir property in packageRestore.proj
 $labelLabelForSolutionDir = "PackageRestoreSolutionDir"
-
-# TODO: Revisit this later, it was causing some exceptions
-function CheckoutProjFileIfUnderScc(){
-    # http://daltskin.blogspot.com/2012/05/nuget-powershell-and-tfs.html
-    $sourceControl = Get-Interface $project.DTE.SourceControl ([EnvDTE80.SourceControl2])
-    if($sourceControl.IsItemUnderSCC($project.FullName) -and $sourceControl.IsItemCheckedOut($project.FullName)){
-        $sourceControl.CheckOutItem($project.FullName)
-    }
-}
-
-function EnsureProjectFileIsWriteable(){
-    $projItem = Get-ChildItem $project.FullName
-    if($projItem.IsReadOnly) {
-        "The project file is read-only. Please checkout the project file and re-install this package" | Write-Host -ForegroundColor Red
-        throw;
-    }
-}
-
-function ComputeRelativePathToTargetsFile(){
-    param($startPath,$targetPath)
-    
-    # we need to compute the relative path
-    $startLocation = Get-Location
-
-    Set-Location $startPath.Directory | Out-Null
-    $relativePath = Resolve-Path -Relative $targetPath.FullName
-
-    # reset the location
-    Set-Location $startLocation | Out-Null
-
-    return $relativePath
-}
 
 function GetSolutionDirFromProj{
     param($msbuildProject)
@@ -98,53 +57,6 @@ function UpdatePackageRestoreSolutionDir (){
     }
 }
 
-function AddImportElementIfNotExists(){
-    param($projectRootElement)
-
-    $foundImport = $false
-    $importsToRemove = @()
-    foreach($import in $projectRootElement.Imports){
-        $importStr = $import.Project
-        if(!$importStr){
-            $importStr = ""
-        }
-
-        # TODO: Change this to look for a specific labeled Import
-        if([string]::Compare('$(SlowCheetahTargets)',$importStr.Trim(),$true) -eq 0){
-            if(!$foundImport){
-               # if it doesn't have a label then add one
-                if([string]::IsNullOrWhiteSpace($import.Label)){
-                    $import.Label = $importLabel
-                }
-                $import.Condition="Exists('`$(SlowCheetahTargets)')"
-
-                $foundImport = $true
-            }
-            else{
-                # if we already found an import, this must be a duplicate remove it
-                $importsToRemove+=$import
-            }
-        }
-    }
-    
-    foreach($import in $importsToRemove){        
-        # $projectRootElement.Imports.Remove($import)
-        # you have to use Microsoft.Build.Evaluation.ProjectCollection to remove, so disabling should be good enough
-        $import.Condition='false'
-    }
-
-    if(!$foundImport){
-    #TODO: Update this import statement
-        # the import is not in the project, add it
-        # <Import Project="$(SlowCheetahTargets)" Condition="Exists('$(SlowCheetahTargets)')" Label="SlowCheetah" />
-        $importToAdd = $projectRootElement.AddImport('$(SlowCheetahTargets)');
-        $importToAdd.Condition = "Exists('`$(SlowCheetahTargets)')"
-        $importToAdd.Label = $importLabel 
-    }        
-}
-
-
-
 #########################
 # Start of script here
 #########################
@@ -156,44 +68,11 @@ if(!(Test-Path $projFile)){
     throw ("Project file not found at [{0}]" -f $projFile)
 }
 
-# use MSBuild to load the project and add the property
-
-# This is what we want to add to the project
-#  <PropertyGroup Label="SlowCheetah">
-#      <SlowCheetah_EnableImportFromNuGet Condition=" '$(SC_EnableImportFromNuGet)'=='' ">true</SlowCheetah_EnableImportFromNuGet>
-#      <SlowCheetah_NuGetImportPath Condition=" '$(SlowCheetah_NuGetImportPath)'=='' ">$([System.IO.Path]::GetFullPath( $(Filepath) ))</SlowCheetah_NuGetImportPath>
-#      <SlowCheetahTargets Condition=" '$(SlowCheetah_EnableImportFromNuGet)'=='true' and Exists('$(SlowCheetah_NuGetImportPath)') ">$(SlowCheetah_NuGetImportPath)</SlowCheetahTargets>
-#  </PropertyGroup>
-
-
-# EnsureProjectFileIsWriteable
 # Before modifying the project save everything so that nothing is lost
 $DTE.ExecuteCommand("File.SaveAll")
-CheckoutProjFileIfUnderScc
-EnsureProjectFileIsWriteable
 
-# Update the Project file to import the .targets file
-#$relPathToTargets = ComputeRelativePathToTargetsFile -startPath ($projItem = Get-Item $project.FullName) -targetPath (Get-Item ("{0}\tools\SlowCheetah.Transforms.targets" -f $rootPath))
-
+# TODO: Does this need to be closed?
 $projectMSBuild = [Microsoft.Build.Construction.ProjectRootElement]::Open($projFile)
-
-#RemoveExistingSlowCheetahPropertyGroups -projectRootElement $projectMSBuild
-#$propertyGroup = $projectMSBuild.AddPropertyGroup()
-#$propertyGroup.Label = $scLabel
-
-#$propEnableNuGetImport = $propertyGroup.AddProperty('SlowCheetah_EnableImportFromNuGet', 'true');
-#$propEnableNuGetImport.Condition = ' ''$(SC_EnableImportFromNuGet)''=='''' ';
-
-#$importStmt = ('$([System.IO.Path]::GetFullPath( $(MSBuildProjectDirectory)\{0} ))' -f $relPathToTargets)
-#$propNuGetImportPath = $propertyGroup.AddProperty('SlowCheetah_NuGetImportPath', "$importStmt");
-#$propNuGetImportPath.Condition = ' ''$(SlowCheetah_NuGetImportPath)''=='''' ';
-
-#$propImport = $propertyGroup.AddProperty('SlowCheetahTargets', '$(SlowCheetah_NuGetImportPath)');
-#$propImport.Condition = ' ''$(SlowCheetah_EnableImportFromNuGet)''==''true'' and Exists(''$(SlowCheetah_NuGetImportPath)'') ';
-
-AddImportElementIfNotExists -projectRootElement $projectMSBuild
-
-$projectMSBuild.Save()
 
 # now update the packageRestore.proj file with the correct path for SolutionDir
 $solnDirFromProj = GetSolutionDirFromProj -msbuildProject $projectMSBuild
