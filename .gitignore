@@ -15,8 +15,8 @@ BuildOutput/
 *.suo
 *.user
 ~*.docx
-msbuild.log
-msbuild.*.log
+*build.log
+*build.*.log
 .dbshell
 *.private
 UpgradeLog*.xml

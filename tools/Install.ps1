@@ -11,7 +11,7 @@ if(!$project){
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Build.Framework")
 }
 
-$scLabel = "PackageRestore"
+$importLabel = "PackageRestore"
 # This is the label of the <SolutionDir property in packageRestore.proj
 $labelLabelForSolutionDir = "PackageRestoreSolutionDir"
 
@@ -114,7 +114,7 @@ function AddImportElementIfNotExists(){
             if(!$foundImport){
                # if it doesn't have a label then add one
                 if([string]::IsNullOrWhiteSpace($import.Label)){
-                    $import.Label = $scLabel
+                    $import.Label = $importLabel
                 }
                 $import.Condition="Exists('`$(SlowCheetahTargets)')"
 
@@ -139,7 +139,7 @@ function AddImportElementIfNotExists(){
         # <Import Project="$(SlowCheetahTargets)" Condition="Exists('$(SlowCheetahTargets)')" Label="SlowCheetah" />
         $importToAdd = $projectRootElement.AddImport('$(SlowCheetahTargets)');
         $importToAdd.Condition = "Exists('`$(SlowCheetahTargets)')"
-        $importToAdd.Label = $scLabel 
+        $importToAdd.Label = $importLabel 
     }        
 }
 
@@ -172,10 +172,8 @@ $DTE.ExecuteCommand("File.SaveAll")
 CheckoutProjFileIfUnderScc
 EnsureProjectFileIsWriteable
 
-
-
 # Update the Project file to import the .targets file
-$relPathToTargets = ComputeRelativePathToTargetsFile -startPath ($projItem = Get-Item $project.FullName) -targetPath (Get-Item ("{0}\tools\SlowCheetah.Transforms.targets" -f $rootPath))
+#$relPathToTargets = ComputeRelativePathToTargetsFile -startPath ($projItem = Get-Item $project.FullName) -targetPath (Get-Item ("{0}\tools\SlowCheetah.Transforms.targets" -f $rootPath))
 
 $projectMSBuild = [Microsoft.Build.Construction.ProjectRootElement]::Open($projFile)
 
