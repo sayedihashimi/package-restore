@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{202DA2B3-8110-4BE8-823D-D563BD2FBBA5}"
+	ProjectSection(SolutionItems) = preProject
+		build.proj = build.proj
+		packagerestore.nuspec = packagerestore.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{97A4DF38-E54B-4066-A310-84AF0CF795D1}"
+	ProjectSection(SolutionItems) = preProject
+		build.proj = build.proj
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{420A1FCD-4185-421B-B6EB-7581B073BA44}"
+	ProjectSection(SolutionItems) = preProject
+		tools\Install.ps1 = tools\Install.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{5BB607AE-FBB4-4BE6-B2D0-573A7E99E093}"
+	ProjectSection(SolutionItems) = preProject
+		content\packageRestore.proj = content\packageRestore.proj
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{AC78059E-EAAB-4933-A746-07090ADC2988}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{420A1FCD-4185-421B-B6EB-7581B073BA44} = {202DA2B3-8110-4BE8-823D-D563BD2FBBA5}
+		{5BB607AE-FBB4-4BE6-B2D0-573A7E99E093} = {202DA2B3-8110-4BE8-823D-D563BD2FBBA5}
+	EndGlobalSection
+EndGlobal

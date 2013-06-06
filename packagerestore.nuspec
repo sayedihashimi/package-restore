@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>PackageRestore</id>
+    <version>1.0.0-beta</version>
+    <authors>Sayed Ibrahim Hashimi</authors>
+    <owners>Sayed Ibrahim Hashimi</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <!-- <projectUrl></projectUrl> -->
+    <iconUrl>http://msbuildbook.com/images/pkgRestore.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>You can use this NuGet package to make working with NuGet Package Restore easier from build servers. If you want to ship
+        Build updates in a NuGet package then you can use this package to help users create scripts to resotre the NuGet packages before the build starts.
+
+    For detailed info on how to use this for Build Servers see http://sedodream.com/2012/12/24/SlowCheetahBuildServerSupportUpdated.aspx.
+    </description>
+    <!-- <releaseNotes></releaseNotes> -->
+    <copyright>Copyright 2012-2013 Sayed Ibrahim Hashimi</copyright>
+    <tags>NuGet PackageRestore Package Restore MSBuild TeamBuild Team Build</tags>
+    <!--<dependencies>
+      <dependency id="SampleDependency" version="1.0" />
+    </dependencies>-->
+  </metadata>
+</package>
